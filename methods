@@ -1,0 +1,26 @@
+import re
+from playwright.sync_api import Playwright, sync_playwright, expect
+
+browser = playwright.chromium.launch(headless=False, slow_mo=500)
+context = browser.new_context()
+page = context.new_page()
+
+
+# Finding the second link on the page. nth() is the index or the order
+page.get_by_role("link").nth(0).click()
+page.locator("link").nth(0).click()
+
+# Finding element by XPATH AND CSS
+
+page.locator(wow-image)
+#finding a class inside div tag
+page.locator("xpath=//div[contains(@class, 'wixui-login-social-bar__arrow-icon m11Au3')]")
+#finding a class inside a tag
+page.locator("xpath=//a[contains(@class, 'wixui-login-social-bar__arrow-icon m11Au3')]")
+#finding a class inside any tag
+page.locator("xpath=//*[contains(@class, 'wixui-login-social-bar__arrow-icon m11Au3')]")
+#finding a text inside a div tag
+page.locator("xpath=//div[contains(text(), 'Find this text')]")
+#chaining locators with xpath
+page.get_by_text("Shoes").locator("xpath=../../../../../../../..").get_by_text("Shoes")
+

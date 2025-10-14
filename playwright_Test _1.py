@@ -3,8 +3,12 @@ from playwright.sync_api import Playwright, sync_playwright, expect
 
 
 def log_in(page) -> None:
-    page.wait_for_load_state("networkidle")
+    #Set timeout to 5 seconds
+    #page.set_default_timeout(5000)
+
     expect(page.get_by_test_id("handle-button").locator("span")).to_contain_text("Log In")
+    expect(page.locator('xpath=//span[contains(@class, "LcZX5c")]')).to_be_visible()
+    print(expect(page.get_by_text("123-456-7890", exact=True)).to_be_visible())
     page.get_by_test_id("handle-button").click()
     page.get_by_test_id("signUp.switchToSignUp").click()
     page.get_by_role("button", name="Log in with Email").click()
@@ -30,6 +34,7 @@ def log_in(page) -> None:
 def change_name(page) -> None:
     page.goto("https://symonstorozhenko.wixsite.com/website-1")
     page.wait_for_load_state("networkidle")
+    expect(page.get_by_role("text", name="About playwright-practice")).to_be_visible()
     page.get_by_test_id("handle-button").click()
     page.get_by_role("menuitem", name="My Account").click()
     page.get_by_role("textbox", name="First name").click()
@@ -44,21 +49,33 @@ def change_name(page) -> None:
     page.screenshot(path="playwrightTutorial/change_name.png")
     print("Test scenario 2: User name change completed successfully")
 
+def get_all_links(page, context) -> None:
+    all_links = page.get_by_role("link").all()
+
+    for link in all_links:
+        href = link.get_attribute("href")
+        if "mailto:" not in href and "tel:" not in href:
+
+            with context.expect_page() as new_page:
+                link.click(button="middle")
+            new_tab = new_page.value
+            new_tab.wait_for_load_state("load")
+
+            new_tab.wait_for_load_state("load")
+            response = new_tab.request.get(new_tab.url)
+
+            print(f"{new_tab.url}: Status {response.status}")
+            new_tab.close()
+
 
 with sync_playwright() as playwright:
-    browser = playwright.chromium.launch(headless=False)
+    browser = playwright.chromium.launch(headless=False, slow_mo=500)
     context = browser.new_context()
     page = context.new_page()
     page.goto("https://symonstorozhenko.wixsite.com/website-1")
+    page.wait_for_load_state("networkidle")
 
-    try:
-        log_in(page)
-    except Exception as e:
-        print(f"Test case 1.0 failed: {e}")
-    try:
-        change_name(page)
-    except Exception as e:
-        print(f"Test case 2.0 failed: {e}")
-    finally:
-        context.close()
-        browser.close()
+    get_all_links(page, context)
+
+    context.close()
+    browser.close()
