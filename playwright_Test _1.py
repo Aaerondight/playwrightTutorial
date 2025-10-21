@@ -68,14 +68,33 @@ def get_all_links(page, context) -> None:
             new_tab.close()
 
 
+def log_in2(page) -> None:
+    #Set timeout to 5 seconds
+    #page.set_default_timeout(5000)
+
+    page.get_by_test_id("handle-button").click()
+    page.get_by_test_id("signUp.switchToSignUp").click()
+    page.get_by_role("button", name="Log in with Email").click()
+    page.get_by_test_id("emailAuth").get_by_role("textbox", name="Email").click()
+    page.get_by_test_id("emailAuth").get_by_role("textbox", name="Email").fill("itsamemario@mairo.com")
+    page.get_by_role("textbox", name="Password").click()
+    page.get_by_role("textbox", name="Password").fill("qwertyui")
+    page.get_by_test_id("submit").get_by_test_id("buttonElement").click()
+    #page.wait_for_selector(".dVkVf7")
+    page.wait_for_selector("[aria-label='itsamemario account']")
+    #page.wait_for_load_state("networkidle")
+    expect(page.get_by_text("Log In", exact=True)).not_to_be_visible()
+    print("Test case 1.1 passed!")
+
 with sync_playwright() as playwright:
-    browser = playwright.chromium.launch(headless=False, slow_mo=500)
+    browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
     page.goto("https://symonstorozhenko.wixsite.com/website-1")
     page.wait_for_load_state("networkidle")
 
-    get_all_links(page, context)
+    #get_all_links(page, context)
+    log_in2(page)
 
     context.close()
     browser.close()
